@@ -1,23 +1,15 @@
 var _ = require('underscore');
-<<<<<<< HEAD
 var bodyParser = require('body-parser');
 var express = require('express');
 var mongoose = require('mongoose');
 
 var app = express();
-=======
 
-var express = require('express');
-var app = express();
-
-var mongoose = require('mongoose');
->>>>>>> origin/master
 mongoose.connect('mongodb://localhost/badchat');
 var db = mongoose.connection;
 
 var Chatroom;
 
-<<<<<<< HEAD
 var getRoom = function(roomid) {
   return new Promise(function(fulfill, reject) {
     Chatroom.findById(roomid).exec(function(err, data) {
@@ -36,8 +28,6 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-=======
->>>>>>> origin/master
 app.set('view engine', 'html');
 app.engine('html', require('ejs').renderFile);
 
@@ -47,21 +37,14 @@ app.get('/', function (req, res) {
 
 app.get('/getrooms', function(req, res) {
   Chatroom.find({}, function(err, data) {
-<<<<<<< HEAD
     if (!err) {
       var roominfo = _.map(data, function(chat) {
         return {name: chat.name, id: chat._id, date: chat.date};
-=======
-    if (err == null) {
-      var roominfo = _.map(data, function(chat) {
-        return {name: chat.name, id: chat._id};
->>>>>>> origin/master
       });
       res.json( {rooms: roominfo} );
     } else {
       res.json( {error: err} );
     }
-<<<<<<< HEAD
     res.end();
   });
 });
@@ -100,37 +83,12 @@ app.post('/:room/send', function(req, res) {
     res.end();
 });
 
-=======
-  });
-});
-
-app.post('/makeroom', function(req, res) {
-  req.on('data', function (data) {
-    var chatname = JSON.parse(data);
-    if (chatname !== null) {
-      var newchat = new Chatroom({name: req.body});
-      newchat.save();
-      res.json({'id': newchat._id});
-    } else {
-      res.json({error: 'Empty name'});
-    }
-  })
-});
-
-app.get('/:room', function(req, res) {
-  res.render('room', {id: req.params.room} );
-});
-
->>>>>>> origin/master
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
     console.log("MongoDB connection opened");
     Chatroom = mongoose.model('chatroom', mongoose.Schema({
       name: String,
-<<<<<<< HEAD
       date: Date,
-=======
->>>>>>> origin/master
       msg: [{user: String, text: String, date: Date}]
     }));
     
