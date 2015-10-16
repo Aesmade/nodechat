@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html ng-app="roomlist">
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    </head>
+    <body>
+        <div ng-controller="roomfetcher" ng-init="roomname=''">
+            <div ng-repeat="room in rooms">
+                <a href="room/{{ room.id }}">{{ room.name }}</a>
+            </div>
+            <input type="text" ng-model="roomname" /><input type="button" ng-click="makenew(roomname)" value="New room" />
+        </div>
+        
+        <script src="controller/roomlist.js"></script>
+    </body>
+</html>
