@@ -1,17 +1,28 @@
 <!DOCTYPE html>
-<html ng-app="roomlist">
+<html ng-app="chatapp">
     <head>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
         <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <link rel="stylesheet" href="css/main.css" />
     </head>
     <body>
-        <div ng-controller="roomfetcher" ng-init="roomname=''">
-            <div ng-repeat="room in rooms">
-                <a href="room/{{ room.id }}">{{ room.name }}</a>
+        <div ng-controller="roomFetcher" ng-init="roomname=''">
+            <div ng-repeat="room in rooms track by $index" id="{{ room.id }}" class="newRoom roomContent" update-on-end>
+                <div class="roomName">{{ room.name }}</div>
+                <div class="messages">aaa bbb ccc</div>
             </div>
             <input type="text" ng-model="roomname" /><input type="button" ng-click="makenew(roomname)" value="New room" />
+            
+        <script type="text/javascript">
+            var updateHandler = function() {
+                $('.newRoom').removeClass('newRoom').click(function() {
+                    console.log(this.id);
+                    $(this).children('.messages').toggle(400);
+                });
+            };
+        </script>
         </div>
         
-        <script src="controller/roomlist.js"></script>
+        <script src="js/controller/app.js"></script>
     </body>
 </html>

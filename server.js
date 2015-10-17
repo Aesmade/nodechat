@@ -33,16 +33,20 @@ app.engine('html', require('ejs').renderFile);
 
 app.use(express.static('public'));
 
+/* show main page */
 app.get('/', function (req, res) {
   res.render('index');
 });
 
-app.get('/getrooms', function(req, res) {
-  Chatroom.find({}).sort( {date: -1} ).then(function(data) {
+/* find rooms created after [param] */
+app.get('/getrooms/*?', function(req, res) {
+  var query = (req.params[0]) ? {date: {$gt: req.params[0]}} : {};
+  Chatroom.find(query).sort( {date: -1} ).then(function(data) {
     var roominfo = _.map(data, function(chat) {
       return {
         name: chat.name,
-        id: chat._id
+        id: chat._id,
+        date: chat.date.getTime()
       };
     });
     res.json( {rooms: roominfo} );
@@ -51,21 +55,19 @@ app.get('/getrooms', function(req, res) {
   });
 });
 
+/* create new room */
 app.post('/newroom', function(req, res) {
    if (req.body.name) {
      var newchat = new Chatroom({
        name: req.body.name,
-       date: new Date()
+       date: Date.now()
      });
      newchat.save();
      res.json( {id: newchat._id} );
+     console.log("New: " + newchat);
   } else {
      res.json( {error: 'Empty name'} );
   }
-});
-
-app.get('/room/:room', function(req, res) {
-  res.render('room', {id: req.params.room} );
 });
 
 app.get('/room/:room/get', function(req, res) {
