@@ -10,6 +10,8 @@ var db = mongoose.connection;
 
 var Chatroom;
 
+var waitingConns = {};
+
 var getRoom = function(roomid) {
   return new Promise(function(fulfill, reject) {
     Chatroom.findById(roomid).exec(function(err, data) {
@@ -70,23 +72,50 @@ app.post('/newroom', function(req, res) {
   }
 });
 
-app.get('/room/:room/get', function(req, res) {
-  getRoom(req.params.room).then(function (data) {
-    res.json(data.msg);
-  }).catch(function (err) {
-    res.json({error: err.toString()});
+/* get messages from [room] after [timestamp] */
+app.get('/room/:room/getafter/:timestamp', function(req, res) {
+  Chatroom.find({
+    _id: req.params.room,
+    msg: {
+      $elemMatch: {
+        date: { $gt: req.params.timestamp }
+      }
+    }
+  }).then(function (result) {
+    /* if no new messages exist add stream to the queue (long polling) */
+    if (result.length == 0) {
+      waitingConns[req.params.room] = waitingConns[req.params.room] || [];
+      waitingConns[req.params.room].push({ out: res, date: new Date() });
+    } else {
+      res.json(result[0].msg);
+    }
   });
 });
 
+/* send a new message to [room] */
 app.post('/room/:room/send', function(req, res) {
-  var body = req.body;
+  var body = req.body, room = req.params.room;
   if (body.user && body.text) {
-    getRoom(req.params.room).then(function (data) {
-      data.msg += {
+    getRoom(room).then(function (data) {
+      /* add the message and save */
+      var newmsg = {
         user: body.user,
         text: body.text,
         date: new Date()
       };
+      data.msg.push(newmsg);
+      data.save();
+      
+      /* notify users polling the room */
+      if (waitingConns[room]) {
+        var pending = waitingConns[room];
+        waitingConns[room] = [];
+        pending.forEach(function (res) {
+          res.out.json( [newmsg] );
+        });
+      }
+      
+      res.end();
     }).catch(function (err) {
       res.json({error: err.toString()});
     });
