@@ -7,17 +7,28 @@
     </head>
     <body>
         <div ng-controller="roomFetcher" ng-init="roomname=''">
-            <div ng-repeat="room in rooms track by $index" id="{{ room.id }}" class="newRoom roomContent" update-on-end>
-                <div class="roomName">{{ room.name }}</div>
-                <div class="messages">aaa bbb ccc</div>
+            <div ng-repeat="room in rooms track by $index" class="roomContent" update-on-end>
+                <div class="newRoom roomName" id="{{ room.id }}">{{ room.name }}</div>
+                <div class="messages">
+                    <div ng-repeat="msg in roomData[room.id].msgs">
+                        {{ msg.date }} {{ msg.user }} : {{ msg.text }}
+                    </div>
+                </div>
             </div>
             <input type="text" ng-model="roomname" /><input type="button" ng-click="makenew(roomname)" value="New room" />
             
         <script type="text/javascript">
+            /* global angular */
             var updateHandler = function() {
                 $('.newRoom').removeClass('newRoom').click(function() {
-                    console.log(this.id);
-                    $(this).children('.messages').toggle(400);
+                    var roomid = $(this).attr('id');
+                    var msgdiv = $(this).next();
+                    var scope = angular.element(this).scope();
+                    if (msgdiv.css('display') == 'none')
+                        scope.addRoom(roomid);
+                    else
+                        scope.removeRoom(roomid);
+                    msgdiv.toggle(400);
                 });
             };
         </script>
