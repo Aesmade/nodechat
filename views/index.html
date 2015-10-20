@@ -26,6 +26,7 @@
         <script type="text/javascript">
             /* global angular */
             var updateHandler = function() {
+                /* add click listener to new rooms */
                 $('.newRoom').removeClass('newRoom').click(function() {
                     var roomid = $(this).attr('id');
                     var msgdiv = $(this).next();

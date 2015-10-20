@@ -7,6 +7,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
     $scope.rooms = [];
     $scope.roomData = {};
     
+    /* POST request to send a message */
     $scope.sendMsg = function(room, text, user) {
         console.log("Sending " + text + " to " + room + " as " + user);
         $http({
@@ -22,6 +23,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
         });
     };
     
+    /* clear updating interrupt flag for a room and return if it was on */
     var clearInterrupt = function(room) {
         if ($scope.roomData[room] && $scope.roomData[room].interrupt) {
             $scope.roomData[room].interrupt = false;
@@ -30,6 +32,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
         return false;
     }
     
+    /* return a function that continuously polls the server for new messages for a room */
     var makePoller = function(room) {
 		var poller = function() {
 		    var lastDate = $scope.roomData[room] && $scope.roomData[room].lastDate || 0;
@@ -42,6 +45,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
                     throw Error(response.data.error);
                 }
                 
+                /* add new messages to array and keep the latest one's timestamp */
 				response.data.forEach(function(msg) {
 				    var time = new Date(msg.date).getTime();
 				    var data = $scope.roomData[room];
@@ -49,6 +53,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
 				    data.msgs.push(msg);
 				});
 				
+				/* if connection not interrupted, call this function again */
 				if (!clearInterrupt(room))
 				    poller();
 				    
@@ -60,6 +65,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
 		return poller;
 	};
     
+    /* poll the server for messages on this room */
     $scope.addRoom = function (room) {
         console.log("Adding " + room);
         if (!clearInterrupt(room)) {
@@ -69,6 +75,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
         }
     }
     
+    /* stop polling for messages on this room */
     $scope.removeRoom = function (room) {
         console.log("Removing " + room);
         if ($scope.roomData[room])
@@ -77,6 +84,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
             $scope.roomData[room] = { lastDate: 0, interrupt: true, msgs: [] };
     }
     
+    /* get new rooms with a timestamp later than the last room found */
     var update = function() {
         $http({
             method: 'GET',
@@ -94,6 +102,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
         });
     };
     
+    /* POST request to create a new room */
     $scope.makenew = function(roomname) {
         var req = {
             method: 'POST',
@@ -114,6 +123,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
     update();
 });
 
+/* call updateHandler whenever rooms get updated */
 app.directive('updateOnEnd', function() {
     return function(scope, element, attrs) {
         if (scope.$last)
