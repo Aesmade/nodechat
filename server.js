@@ -12,6 +12,22 @@ var Chatroom;
 
 var waitingConns = {};
 
+/* close long polling connections older than 30 seconds */
+var clearConnections = function() {
+  var timeoutThreshold = new Date();
+  timeoutThreshold.setSeconds(timeoutThreshold.getSeconds() - 30);
+  Object.keys(waitingConns).forEach(function (key) {
+    var conns = waitingConns[key];
+    for(var i = conns.length - 1; i >= 0; i--)
+      if(conns[i].date < timeoutThreshold) {
+        console.log("Closing polling connection");
+        conns[i].out.json([]);
+        conns.splice(i, 1);
+      }
+  });
+}
+
+/* get room from db and return via a promise */
 var getRoom = function(roomid) {
   return new Promise(function(fulfill, reject) {
     Chatroom.findById(roomid).exec(function(err, data) {
@@ -66,7 +82,7 @@ app.post('/newroom', function(req, res) {
      });
      newchat.save();
      res.json( {id: newchat._id} );
-     console.log("New: " + newchat);
+     console.log("New room: " + newchat.name);
   } else {
      res.json( {error: 'Empty name'} );
   }
@@ -123,23 +139,26 @@ app.post('/room/:room/send', function(req, res) {
     res.end();
 });
 
+/* on successful db connection start server */
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
-    console.log("MongoDB connection opened");
-    Chatroom = mongoose.model('chatroom', mongoose.Schema({
-      name: String,
-      date: Date,
-      msg: [{
-        user: String,
-        text: String,
-        date: Date
-      }]
-    }));
+  console.log("MongoDB connection opened");
+  Chatroom = mongoose.model('chatroom', mongoose.Schema({
+    name: String,
+    date: Date,
+    msg: [{
+      user: String,
+      text: String,
+      date: Date
+    }]
+  }));
     
-    var server = app.listen(process.env.PORT, process.env.IP, 100, function() {
-      var host = server.address().address;
-      var port = server.address().port;
+  var server = app.listen(process.env.PORT, process.env.IP, 100, function() {
+    var host = server.address().address;
+    var port = server.address().port;
 
-      console.log('Listening at http://%s:%s', host, port);
+    console.log('Listening at http://%s:%s', host, port);
   });
+  
+  setInterval(clearConnections, 5000);
 });
