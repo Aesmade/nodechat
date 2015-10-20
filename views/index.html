@@ -13,9 +13,15 @@
                     <div ng-repeat="msg in roomData[room.id].msgs">
                         {{ msg.date }} {{ msg.user }} : {{ msg.text }}
                     </div>
+                    <input type="text" ng-model="msgField[$index]" />
+                    <input type="button" value="Send" ng-click="sendMsg(room.id, msgField[$index], username)" />
                 </div>
             </div>
             <input type="text" ng-model="roomname" /><input type="button" ng-click="makenew(roomname)" value="New room" />
+            <div>
+                <span>Name: </span>
+                <input type="text" ng-model="username" />
+            </div>
             
         <script type="text/javascript">
             /* global angular */

@@ -7,6 +7,21 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
     $scope.rooms = [];
     $scope.roomData = {};
     
+    $scope.sendMsg = function(room, text, user) {
+        console.log("Sending " + text + " to " + room + " as " + user);
+        $http({
+            method: 'POST',
+            url: '/room/' + room + '/send',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: {
+                user: user,
+                text: text
+            }
+        });
+    };
+    
     var clearInterrupt = function(room) {
         if ($scope.roomData[room] && $scope.roomData[room].interrupt) {
             $scope.roomData[room].interrupt = false;
@@ -48,10 +63,8 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
     $scope.addRoom = function (room) {
         console.log("Adding " + room);
         if (!clearInterrupt(room)) {
-            if (!$scope.roomData[room]) {
+            if (!$scope.roomData[room])
                 $scope.roomData[room] = { lastDate: 0, interrupt: false, msgs: [] };
-                console.log("new room");
-            }
             makePoller(room)();
         }
     }
