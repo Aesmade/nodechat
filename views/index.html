@@ -14,7 +14,7 @@
                         {{ msg.date }} {{ msg.user }} : {{ msg.text }}
                     </div>
                     <input type="text" ng-model="msgField[$index]" />
-                    <input type="button" value="Send" ng-click="sendMsg(room.id, msgField[$index], username)" />
+                    <input type="button" value="Send" ng-click="sendMsg(room.id, msgField[$index], username)" ng-disabled="!username || username.length == 0" />
                 </div>
             </div>
             <input type="text" ng-model="roomname" /><input type="button" ng-click="makenew(roomname)" value="New room" />
@@ -22,6 +22,7 @@
                 <span>Name: </span>
                 <input type="text" ng-model="username" />
             </div>
+            <div ng-show="!username || username.length == 0">Username can't be null!</div>
             
         <script type="text/javascript">
             /* global angular */
