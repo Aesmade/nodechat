@@ -10,7 +10,20 @@ var db = mongoose.connection;
 
 var Chatroom;
 
+/* conns polling each room */
 var waitingConns = {};
+
+/* parse POST body */
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
+app.set('view engine', 'html');
+app.engine('html', require('ejs').renderFile);
+
+/* public dir is static */
+app.use(express.static('public'));
 
 /* close long polling connections older than 30 seconds */
 var clearConnections = function() {
@@ -25,7 +38,7 @@ var clearConnections = function() {
         conns.splice(i, 1);
       }
   });
-}
+};
 
 /* get room from db and return via a promise */
 var getRoom = function(roomid) {
@@ -39,17 +52,7 @@ var getRoom = function(roomid) {
       fulfill(data);
     });
   });
-}
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
-
-app.set('view engine', 'html');
-app.engine('html', require('ejs').renderFile);
-
-app.use(express.static('public'));
+};
 
 /* show main page */
 app.get('/', function (req, res) {
