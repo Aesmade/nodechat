@@ -8,7 +8,7 @@ var app = express();
 mongoose.connect('mongodb://localhost/badchat');
 var db = mongoose.connection;
 
-var Chatroom;
+var Chatroom, Message;
 
 /* conns polling each room */
 var waitingConns = {};
@@ -37,20 +37,6 @@ var clearConnections = function() {
         conns[i].out.json([]);
         conns.splice(i, 1);
       }
-  });
-};
-
-/* get room from db and return via a promise */
-var getRoom = function(roomid) {
-  return new Promise(function(fulfill, reject) {
-    Chatroom.findById(roomid).exec(function(err, data) {
-    if (err)
-      reject(err);
-    else if (!data)
-      reject("Room not found");
-    else
-      fulfill(data);
-    });
   });
 };
 
@@ -93,20 +79,16 @@ app.post('/newroom', function(req, res) {
 
 /* get messages from [room] after [timestamp] */
 app.get('/room/:room/getafter/:timestamp', function(req, res) {
-  Chatroom.find({
-    _id: req.params.room,
-    msg: {
-      $elemMatch: {
-        date: { $gt: req.params.timestamp }
-      }
-    }
-  }).then(function (result) {
+  Message.find({
+    room: req.params.room,
+    date: { $gt: req.params.timestamp }
+  }).sort('+date').then(function (results) {
     /* if no new messages exist add stream to the queue (long polling) */
-    if (result.length == 0) {
+    if (results.length == 0) {
       waitingConns[req.params.room] = waitingConns[req.params.room] || [];
       waitingConns[req.params.room].push({ out: res, date: new Date() });
     } else {
-      res.json(result[0].msg);
+      res.json(results);
     }
   });
 });
@@ -115,29 +97,25 @@ app.get('/room/:room/getafter/:timestamp', function(req, res) {
 app.post('/room/:room/send', function(req, res) {
   var body = req.body, room = req.params.room;
   if (body.user && body.text) {
-    getRoom(room).then(function (data) {
-      /* add the message and save */
-      var newmsg = {
-        user: body.user,
-        text: body.text,
-        date: new Date()
-      };
-      data.msg.push(newmsg);
-      data.save();
-      
-      /* notify users polling the room */
-      if (waitingConns[room]) {
-        var pending = waitingConns[room];
-        waitingConns[room] = [];
-        pending.forEach(function (res) {
-          res.out.json( [newmsg] );
-        });
-      }
-      
-      res.end();
-    }).catch(function (err) {
-      res.json({error: err.toString()});
-    });
+    /* add the message and save */
+    var newmsg = {
+      user: body.user,
+      text: body.text,
+      date: new Date(),
+      room: room
+    };
+    new Message(newmsg).save();
+    
+    /* notify users polling the room */
+    if (waitingConns[room]) {
+      var pending = waitingConns[room];
+      waitingConns[room] = [];
+      pending.forEach(function (res) {
+        res.out.json( [newmsg] );
+      });
+    }
+    
+    res.end();
   } else
     res.end();
 });
@@ -146,14 +124,17 @@ app.post('/room/:room/send', function(req, res) {
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
   console.log("MongoDB connection opened");
-  Chatroom = mongoose.model('chatroom', mongoose.Schema({
+  
+  Chatroom = mongoose.model('Chatroom', mongoose.Schema({
     name: String,
     date: Date,
-    msg: [{
-      user: String,
-      text: String,
-      date: Date
-    }]
+  }));
+  
+  Message = mongoose.model('Message', mongoose.Schema({
+    user: String,
+    text: String,
+    date: Date,
+    room: { type: mongoose.Schema.ObjectId, ref: 'Chatroom' }
   }));
     
   var server = app.listen(process.env.PORT, process.env.IP, 100, function() {

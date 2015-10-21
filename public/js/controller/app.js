@@ -91,7 +91,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
             url: '/getrooms/' + lastDate
         }).then(function (response) {
             response.data.rooms.forEach(function (obj) {
-                console.log(obj);
+                console.log("New room object: " + obj);
                 $scope.rooms.push(obj);
                 if (obj.date > lastDate)
                     lastDate = obj.date;
