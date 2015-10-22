@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html ng-app="chatapp">
     <head>
+        <!-- AngularJS -->
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+        <script src="https://code.angularjs.org/1.4.7/angular-cookies.min.js"></script>
+        
+        <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+        
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="css/main.css" />
     </head>
     <body>
-        <div ng-controller="roomFetcher" ng-init="roomname=''">
+        <div class="container" ng-controller="roomFetcher" ng-init="roomname=''">
             <div ng-repeat="room in rooms track by $index" class="roomContent" update-on-end>
                 <div class="newRoom roomName" id="{{ room.id }}">{{ room.name }}</div>
                 <div class="messages">
@@ -14,32 +24,49 @@
                         {{ msg.date }} {{ msg.user }} : {{ msg.text }}
                     </div>
                     <input type="text" ng-model="msgField[$index]" />
-                    <input type="button" value="Send" ng-click="sendMsg(room.id, msgField[$index], username)" ng-disabled="!username || username.length == 0" />
+                    <input type="button" class="btn btn-default" value="Send" ng-click="sendMsg(room.id, msgField[$index], username)" ng-disabled="invalidUsername" />
                 </div>
             </div>
-            <input type="text" ng-model="roomname" /><input type="button" ng-click="makenew(roomname)" value="New room" />
-            <div>
-                <span>Name: </span>
-                <input type="text" ng-model="username" />
+            <div class="row">
+                <div class="form-inline col-sm-5">
+                    <form>
+                        <div class="row">
+                            <input class="col-sm-9 form-control" type="text" ng-model="roomname" />
+                            <input class="col-sm-3 btn btn-primary" type="button" ng-click="makenew(roomname)" value="New room" />
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div ng-show="!username || username.length == 0">Username can't be null!</div>
+            <div class="row">&nbsp;</div>
+            <div class="row">
+                <form class="col-sm-6 form-inline">
+                    <div class="form-group has-feedback" ng-class="invalidUsername ? 'has-error' : 'has-success'">
+                        <div>
+                            <label class="control-label" for="usernameInput">Name: </span>
+                            <input id="usernameInput" type="text" class="form-control" ng-model="username" ng-change="checkUsername()" />
+                            <span class="glyphicon form-control-feedback" ng-class="invalidUsername ? 'glyphicon-remove' : 'glyphicon-ok'" aria-hidden="true"></span>
+                        </div>
+                        <strong class="control-label" ng-show="invalidUsername">Username can't be null!</strong>
+                    </div>
+                </form>
+            </div>
             
-        <script type="text/javascript">
-            /* global angular */
-            var updateHandler = function() {
-                /* add click listener to new rooms */
-                $('.newRoom').removeClass('newRoom').click(function() {
-                    var roomid = $(this).attr('id');
-                    var msgdiv = $(this).next();
-                    var scope = angular.element(this).scope();
-                    if (msgdiv.css('display') == 'none')
-                        scope.addRoom(roomid);
-                    else
-                        scope.removeRoom(roomid);
-                    msgdiv.toggle(400);
-                });
-            };
-        </script>
+            <script type="text/javascript">
+                /* global angular */
+                var updateHandler = function() {
+                    /* add click listener to new rooms */
+                    $('.newRoom').removeClass('newRoom').click(function() {
+                        var roomid = $(this).attr('id');
+                        var msgdiv = $(this).next();
+                        var scope = angular.element(this).scope();
+                        if (msgdiv.css('display') == 'none')
+                            scope.addRoom(roomid);
+                        else
+                            scope.removeRoom(roomid);
+                        msgdiv.toggle(400);
+                    });
+                };
+            </script>
         </div>
         
         <script src="js/controller/app.js"></script>

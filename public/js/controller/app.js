@@ -1,11 +1,22 @@
 /* global angular */
 /* global updateHandler */
-var app = angular.module('chatapp', []);
+var app = angular.module('chatapp', ['ngCookies']);
 
-app.controller('roomFetcher', function($scope, $http, $interval) {
+app.controller('roomFetcher', function($scope, $http, $interval, $cookies) {
     var lastDate = 0, promise;
     $scope.rooms = [];
     $scope.roomData = {};
+    $scope.username = $cookies.get("username") || "";
+    
+    /* username flag */
+    $scope.checkUsername = function() {
+        $scope.invalidUsername = !$scope.username || $scope.username.length == 0;
+        
+        if (!$scope.invalidUsername)
+            $cookies.put("username", $scope.username);
+    };
+    
+    $scope.checkUsername();
     
     /* POST request to send a message */
     $scope.sendMsg = function(room, text, user) {
@@ -30,7 +41,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
             return true;
         }
         return false;
-    }
+    };
     
     /* return a function that continuously polls the server for new messages for a room */
     var makePoller = function(room) {
@@ -73,7 +84,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
                 $scope.roomData[room] = { lastDate: 0, interrupt: false, msgs: [] };
             makePoller(room)();
         }
-    }
+    };
     
     /* stop polling for messages on this room */
     $scope.removeRoom = function (room) {
@@ -82,7 +93,7 @@ app.controller('roomFetcher', function($scope, $http, $interval) {
             $scope.roomData[room].interrupt = true;
         else
             $scope.roomData[room] = { lastDate: 0, interrupt: true, msgs: [] };
-    }
+    };
     
     /* get new rooms with a timestamp later than the last room found */
     var update = function() {
