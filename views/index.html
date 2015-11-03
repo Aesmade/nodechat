@@ -17,34 +17,38 @@
     </head>
     <body>
         <div class="container" ng-controller="roomFetcher" ng-init="roomname=''">
-            <div ng-repeat="room in rooms track by $index" class="room-content" update-on-end>
-                <div class="new-room room-name" id="{{ room.id }}">{{ room.name }}</div>
-                <div class="msg-content">
-                    <div class="messages" id="msg{{ room.id }}">
-                        <div ng-repeat="msg in roomData[room.id].msgs" class="row">
-                            <div class="msg-user col-sm-2" style="color: {{ makeColor(msg.user) }}">
-                                {{ msg.user }}
-                                <div class="msg-date">at {{ msg.date | date:'HH:mm:ss' }}</div>
+            <div>
+                <div ng-repeat="room in rooms track by $index" class="room-content" update-on-end>
+                    <div class="new-room room-name" id="{{ room.id }}">{{ room.name }}</div>
+                    <div class="msg-content">
+                        <div class="messages" id="msg{{ room.id }}">
+                            <div ng-repeat="msg in roomData[room.id].msgs" class="row">
+                                <div class="msg-user col-sm-2" style="color: {{ makeColor(msg.user) }}">
+                                    {{ msg.user }}
+                                    <div class="msg-date">at {{ msg.date | date:'HH:mm:ss' }}</div>
+                                </div>
+                                <div class="msg-text bubble col-sm-7">{{ msg.text }}</div>
                             </div>
-                            <div class="msg-text bubble col-sm-7">{{ msg.text }}</div>
                         </div>
-                    </div>
-                    <div class="controls">
-                        <form class="form-inline">
-                            <input type="text" class="form-control" ng-model="msgField[$index]" placeholder="Message" />
-                            <input type="submit" class="btn btn-default" value="Send" ng-click="sendMsg(room.id, msgField[$index], username)" ng-disabled="invalidUsername" />
-                        </form>
+                        <div class="controls">
+                            <form class="form-inline">
+                                <input type="text" class="form-control" ng-model="msgField[$index]" placeholder="Message" />
+                                <input type="submit" class="btn btn-default" value="Send" ng-click="sendMsg(room.id, msgField[$index], username)" ng-disabled="invalidUsername" />
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="row upper-margin">
+            
+            <div class="row">
                 <form class="form-inline col-sm-6">
                     <label for="newRoomName">New room: </label>
                     <input class="form-control" type="text" ng-model="roomname" id="newRoomName" placeholder="Room name" />
                     <input class="btn btn-primary" type="submit" ng-click="makenew(roomname)" value="Create" />
                 </form>
             </div>
-            <div class="row upper-margin">
+            
+            <div class="row">
                 <form class="form-inline col-sm-6">
                     <div class="form-group has-feedback" ng-class="invalidUsername ? 'has-error' : 'has-success'">
                         <div>

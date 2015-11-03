@@ -6,6 +6,11 @@
 
 .msg-content {
     display: none;
+    border: 1px solid #37B;
+    border-top: 0;
+    padding: 5px;
+    margin: 4px;
+    margin-top: 0;
 }
 
 .msg-user {
@@ -45,13 +50,20 @@
 }
 
 .room-name {
-    border: 2px solid #55f;
+    border: 2px solid #37B;
     border-radius: 5px;
     font-weight: bold;
     padding: 3px;
     margin: 3px;
+    margin-bottom: 0;
 }
 
-.upper-margin {
-    margin-top: 15px;
+.controls {
+    border-top: 1px solid #CCC;
+    margin-top: 5px;
+    padding-top: 5px;
+}
+
+.container > div {
+    margin-bottom: 15px;
 }
