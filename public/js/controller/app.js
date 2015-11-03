@@ -1,8 +1,9 @@
 /* global angular */
 /* global updateHandler */
+/* global scrollToLast */
 var app = angular.module('chatapp', ['ngCookies']);
 
-app.controller('roomFetcher', function($scope, $http, $interval, $cookies) {
+app.controller('roomFetcher', function($scope, $http, $interval, $timeout, $cookies) {
     var lastDate = 0, promise;
     $scope.rooms = [];
     $scope.roomData = {};
@@ -63,6 +64,11 @@ app.controller('roomFetcher', function($scope, $http, $interval, $cookies) {
 				    data.lastDate = Math.max(time, lastDate);
 				    data.msgs.push(msg);
 				});
+				
+				/* scroll to last message after rendering */
+				$timeout(function() {
+				    scrollToLast(room);
+				}, 0, false);
 				
 				/* if connection not interrupted, call this function again */
 				if (!clearInterrupt(room))
@@ -128,6 +134,15 @@ app.controller('roomFetcher', function($scope, $http, $interval, $cookies) {
         }).catch(function (err) {
             alert(err.statusText); 
         });
+    };
+    
+    $scope.makeColor = function(username) {
+        var colorCode = 0;
+        for (var i in username)
+            colorCode += username.charCodeAt(i) * (3 - (i%3));
+        
+        var colorStr = (colorCode & 0xFFF).toString(16);
+        return "#" + colorStr;
     };
     
     promise = $interval(update, 10000);

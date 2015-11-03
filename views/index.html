@@ -11,39 +11,45 @@
         <!-- Bootstrap -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-        
+
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="css/main.css" />
     </head>
     <body>
         <div class="container" ng-controller="roomFetcher" ng-init="roomname=''">
-            <div ng-repeat="room in rooms track by $index" class="roomContent" update-on-end>
-                <div class="newRoom roomName" id="{{ room.id }}">{{ room.name }}</div>
-                <div class="messages">
-                    <div ng-repeat="msg in roomData[room.id].msgs">
-                        {{ msg.date }} {{ msg.user }} : {{ msg.text }}
-                    </div>
-                    <input type="text" ng-model="msgField[$index]" />
-                    <input type="button" class="btn btn-default" value="Send" ng-click="sendMsg(room.id, msgField[$index], username)" ng-disabled="invalidUsername" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-inline col-sm-5">
-                    <form>
-                        <div class="row">
-                            <input class="col-sm-9 form-control" type="text" ng-model="roomname" />
-                            <input class="col-sm-3 btn btn-primary" type="button" ng-click="makenew(roomname)" value="New room" />
+            <div ng-repeat="room in rooms track by $index" class="room-content" update-on-end>
+                <div class="new-room room-name" id="{{ room.id }}">{{ room.name }}</div>
+                <div class="msg-content">
+                    <div class="messages" id="msg{{ room.id }}">
+                        <div ng-repeat="msg in roomData[room.id].msgs" class="row">
+                            <div class="msg-user col-sm-2" style="color: {{ makeColor(msg.user) }}">
+                                {{ msg.user }}
+                                <div class="msg-date">at {{ msg.date | date:'HH:mm:ss' }}</div>
+                            </div>
+                            <div class="msg-text bubble col-sm-7">{{ msg.text }}</div>
                         </div>
-                    </form>
+                    </div>
+                    <div class="controls">
+                        <form class="form-inline">
+                            <input type="text" class="form-control" ng-model="msgField[$index]" placeholder="Message" />
+                            <input type="submit" class="btn btn-default" value="Send" ng-click="sendMsg(room.id, msgField[$index], username)" ng-disabled="invalidUsername" />
+                        </form>
+                    </div>
                 </div>
             </div>
-            <div class="row">&nbsp;</div>
-            <div class="row">
-                <form class="col-sm-6 form-inline">
+            <div class="row upper-margin">
+                <form class="form-inline col-sm-6">
+                    <label for="newRoomName">New room: </label>
+                    <input class="form-control" type="text" ng-model="roomname" id="newRoomName" placeholder="Room name" />
+                    <input class="btn btn-primary" type="submit" ng-click="makenew(roomname)" value="Create" />
+                </form>
+            </div>
+            <div class="row upper-margin">
+                <form class="form-inline col-sm-6">
                     <div class="form-group has-feedback" ng-class="invalidUsername ? 'has-error' : 'has-success'">
                         <div>
                             <label class="control-label" for="usernameInput">Name: </span>
-                            <input id="usernameInput" type="text" class="form-control" ng-model="username" ng-change="checkUsername()" />
+                            <input id="usernameInput" type="text" class="form-control" ng-model="username" ng-change="checkUsername()" placeholder="Username" />
                             <span class="glyphicon form-control-feedback" ng-class="invalidUsername ? 'glyphicon-remove' : 'glyphicon-ok'" aria-hidden="true"></span>
                         </div>
                         <strong class="control-label" ng-show="invalidUsername">Username can't be null!</strong>
@@ -53,9 +59,17 @@
             
             <script type="text/javascript">
                 /* global angular */
+                
+                /* scroll room to its last message */
+                var scrollToLast = function(roomid) {
+                    var msgs = $("#msg"+roomid);
+                    if (msgs && msgs.children())
+                        msgs.animate({scrollTop:"+=" + msgs.children().last().offset().top}, 1000);
+                };
+                
+                /* add click listener to new rooms */
                 var updateHandler = function() {
-                    /* add click listener to new rooms */
-                    $('.newRoom').removeClass('newRoom').click(function() {
+                    $('.new-room').removeClass('new-room').click(function() {
                         var roomid = $(this).attr('id');
                         var msgdiv = $(this).next();
                         var scope = angular.element(this).scope();
@@ -66,6 +80,9 @@
                         msgdiv.toggle(400);
                     });
                 };
+                
+                scrollToLast;
+                updateHandler;
             </script>
         </div>
         
