@@ -8,8 +8,8 @@
     display: none;
     border: 1px solid #37B;
     border-top: 0;
-    padding: 5px;
-    margin: 4px;
+    padding: 20px;
+    margin: 6px;
     margin-top: 0;
 }
 
@@ -60,8 +60,8 @@
 
 .controls {
     border-top: 1px solid #CCC;
-    margin-top: 5px;
-    padding-top: 5px;
+    margin-top: 30px;
+    padding-top: 15px;
 }
 
 .container > div {
