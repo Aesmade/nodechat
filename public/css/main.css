@@ -16,6 +16,7 @@
 .msg-user {
     display: inline-block;
     font-weight: bold;
+    color: inherit;
 }
 
 .msg-date {
@@ -33,7 +34,8 @@
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
-    border: #49C solid 2px;
+    border-style: solid;
+    border-width: 2px;
 }
 
 .msg-text:before {
@@ -41,12 +43,15 @@
     position: absolute;
     border-style: solid;
     border-width: 8px 15px 8px 0;
-    border-color: transparent #49C;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: inherit;
+    border-right-color: inherit;
     display: block;
     width: 0;
     z-index: 0;
     left: -15px;
-    top: 3px;
+    top: 4px;
 }
 
 .room-name {

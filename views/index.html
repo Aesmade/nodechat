@@ -27,7 +27,7 @@
                                     {{ msg.user }}
                                     <div class="msg-date">at {{ msg.date | date:'HH:mm:ss' }}</div>
                                 </div>
-                                <div class="msg-text bubble col-sm-7">{{ msg.text }}</div>
+                                <div class="msg-text bubble col-sm-7" style="border-color: {{ makeColor(msg.user) }}">{{ msg.text }}</div>
                             </div>
                         </div>
                         <div class="controls">
